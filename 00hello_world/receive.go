@@ -7,6 +7,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
+const queueName = "hello_queue"
+
 func main() {
 	fmt.Println("Go receiving from Rabbit")
 
@@ -19,12 +21,12 @@ func main() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"hello_from_java", //name
-		false,             //durable
-		false,             //delete when unused
-		false,             //exclusive
-		false,             //no wait
-		nil,               //arguments
+		queueName, //name
+		false,     //durable
+		false,     //delete when unused
+		false,     //exclusive
+		false,     //no wait
+		nil,       //arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 

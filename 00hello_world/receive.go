@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Go send to RabbitMQ")
+	fmt.Println("Go receiving from Rabbit")
 
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672")
 	failOnError(err, "Failed to connect to RabbitMQ")
@@ -28,20 +28,29 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-	body := "Hello from go"
-	err = ch.Publish(
-		"",     //exchange
-		q.Name, //routing key
-		false,  //mandatory
-		false,  //inmediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	failOnError(err, "Failed to publish a message")
-	log.Printf(" [x] Sent %s", body)
+	msgs, err := ch.Consume(
+		q.Name, //Queue
+		"",     //consumer
+		true,   //auto-ack
+		false,  //exclusive
+		false,  //no-local
+		false,  //no-wait
+		nil,    //arg
+	)
+	failOnError(err, "Failed to register a consumer")
 
-	fmt.Println("Go sent to RabbitMQ ;) ")
+	forever := make(chan bool)
+
+	go func() {
+		for d := range msgs {
+			log.Printf("Received a message: %s", d.Body)
+		}
+	}()
+
+	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	<-forever
+
+	fmt.Println("Go received from Rabbit ;)")
 }
 
 func failOnError(err error, msg string) {

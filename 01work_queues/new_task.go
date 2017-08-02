@@ -61,7 +61,7 @@ func bodyFrom(args []string) string {
 	if (len(args) < 2) || args[1] == "" {
 		s = "Task from go"
 	} else {
-		strings.Join(args[1:], "")
+		s = strings.Join(args[1:], " ")
 	}
 
 	return s
